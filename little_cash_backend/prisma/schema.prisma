@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  name      String
+  password  String
+  cpf       String   @unique
+  email     String   @unique
+  roles     String[]
+  position  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Clients {
+  id                  String                @id @default(uuid())
+  name                String
+  cpf                 String                @unique
+  email               String                @unique
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  serviceOrder        ServiceOrder?
+  HistoryServiceOrder HistoryServiceOrder[]
+}
+
+model ServiceOrder {
+  id       String                  @id @default(uuid())
+  number   Int                     @unique()
+  client   Clients?                @relation(fields: [clientId], references: [id])
+  clientId String?                 @unique()
+  total    Float?                  @default(0.0)
+  products ServiceOrdersProducts[]
+}
+
+model Products {
+  id                          String                        @id @default(uuid())
+  name                        String
+  price                       Float
+  quantity                    Int                           @default(0)
+  serviceOrder                ServiceOrdersProducts[]
+  HistoryServiceOrderProducts HistoryServiceOrderProducts[]
+}
+
+model ServiceOrdersProducts {
+  id             String       @id @default(uuid())
+  serviceOrderId String
+  productId      String
+  quantity       Int
+  serviceOrder   ServiceOrder @relation(fields: [serviceOrderId], references: [id])
+  product        Products     @relation(fields: [productId], references: [id])
+}
+
+model HistoryServiceOrder {
+  id            String                        @id @default(uuid())
+  clientId      String
+  client        Clients?                      @relation(fields: [clientId], references: [id])
+  total         Float
+  closingDate   DateTime                      @default(now())
+  paymentMethod String
+  products      HistoryServiceOrderProducts[]
+}
+
+model HistoryServiceOrderProducts {
+  id                    String              @id @default(uuid())
+  historyServiceOrderId String
+  productId             String
+  quantity              Int
+  historyServiceOrder   HistoryServiceOrder @relation(fields: [historyServiceOrderId], references: [id])
+  product               Products            @relation(fields: [productId], references: [id])
+}

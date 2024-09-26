@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_little_cash_db
+    restart: always
+    environment:
+      POSTGRES_USER: little_cash_dba
+      POSTGRES_PASSWORD: littleCash@database_access
+      POSTGRES_DB: littlecash_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - littlecash_net
+
+volumes:
+  postgres_data:
+
+networks:
+  littlecash_net:
+    driver: bridge
